@@ -79,8 +79,8 @@
 		0DBB908C2AE7F14F00E31774 /* EssentialFeed */ = {
 			isa = PBXGroup;
 			children = (
-				0DBB90A82AE8151C00E31774 /* Feed API */,
 				0DBB90A62AE7F4E100E31774 /* Feed Feature */,
+				0DBB90A82AE8151C00E31774 /* Feed API */,
 				0DBB908D2AE7F14F00E31774 /* EssentialFeed.h */,
 			);
 			path = EssentialFeed;
