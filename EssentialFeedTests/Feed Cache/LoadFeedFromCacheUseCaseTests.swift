@@ -27,7 +27,6 @@ class LoadFeedFromCacheUseCaseTests: XCTestCase {
   func test_load_failsOnRetrievakerror() {
     let (sut, store) = makeSUT()
     let retrievalError = anyNSError()
-    let exp = expectation(description: "wait for load completion")
     
     expect(sut, toCompleteWith: .failure(retrievalError), when: {
       store.completeRetrieval(with: retrievalError)
@@ -36,7 +35,6 @@ class LoadFeedFromCacheUseCaseTests: XCTestCase {
   
   func test_load_deliversnoImagesOnEmptyCache() {
     let (sut, store) = makeSUT()
-    let exp = expectation(description: "wait for load completion")
     
     expect(sut, toCompleteWith: .success([]), when: {
       store.completeRetrievalWithEmptyCache()
