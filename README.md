@@ -82,16 +82,27 @@
      5. System delivers image feed.
 
      #### retrieval Error course (sad path):
-     1. System deletes cache.
-     2. System delivers error.
+     1. System delivers error.
 
      #### Expired cache course (sad path): 
-     1. System deletes cache.
-     2. System delivers no feed images.
+     1. System delivers no feed images.
 
      #### Empty cache course (sad path): 
      1. System delivers no feed images.
    
+   ### Validate Feed Cache Use Case
+
+    #### Primary course:
+     1. Execute "Validate Cache" command with above data.
+     2. System retrieves feed data from cache.
+     3. System validates cache is less than seven days old.
+
+     #### retrieval Error course (sad path):
+     1. System deletes cache.
+
+     #### Expired cache course (sad path): 
+     1. System deletes cache.
+
    ### Cache Feed Use Case
 
      #### Data:
