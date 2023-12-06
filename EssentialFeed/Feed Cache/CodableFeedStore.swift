@@ -7,7 +7,7 @@
 
 import Foundation
 
-public class CodableFeedStore {
+public class CodableFeedStore: FeedStore {
   private struct Cache: Codable {
     let feed: [CodableFeedImage]
     let timestamp: Date
@@ -75,7 +75,7 @@ public class CodableFeedStore {
     }
   }
   
-  public func deleteCachedFeed(completion: @escaping FeedStore.DeletionCompletion) {
+  public func deleteCacheFeed(completion: @escaping FeedStore.DeletionCompletion) {
     // we capture value instead a reference
     let storeURL = self.storeURL
     // As we define the queue concurrent, we have to use the flags .barrier to avoid conccurence when a specific command (with side-effects) is launched
