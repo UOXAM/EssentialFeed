@@ -35,7 +35,8 @@ public class CodableFeedStore {
     }
   }
   
-  private let queue = DispatchQueue(label: "\(CodableFeedStore.self)Queue", qos: .userInitiated)
+  // DispatchQueue.global is concurrent, so we use a backgroundQueue which by default operation run serially. But we can also define as concurrent.
+  private let queue = DispatchQueue(label: "\(CodableFeedStore.self)Queue", qos: .userInitiated, attributes: .concurrent)
   private let storeURL: URL
   
   public init(storeURL: URL) {
@@ -61,7 +62,7 @@ public class CodableFeedStore {
   
   public func insert(_ feed: [LocalFeedImage], timestamp: Date, completion: @escaping FeedStore.InsertionCompletion) {
     let storeURL = self.storeURL
-    queue.async {
+    queue.async(flags: .barrier) {
       do {
         let encoder = JSONEncoder()
         let cache = Cache(feed: feed.map(CodableFeedImage.init), timestamp: timestamp)
@@ -77,8 +78,8 @@ public class CodableFeedStore {
   public func deleteCachedFeed(completion: @escaping FeedStore.DeletionCompletion) {
     // we capture value instead a reference
     let storeURL = self.storeURL
-    // DispatchQueue.global is concurrent, so we use a backgroundQueue which by default operation run serially
-    queue.async {
+    // As we define the queue concurrent, we have to use the flags .barrier to avoid conccurence when a specific command (with side-effects) is launched
+    queue.async(flags: .barrier) {
       guard FileManager.default.fileExists(atPath: storeURL.path) else {
         return completion(nil)
       }
