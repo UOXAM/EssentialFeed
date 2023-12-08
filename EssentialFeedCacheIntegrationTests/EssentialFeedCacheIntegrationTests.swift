@@ -25,48 +25,25 @@ class EssentialFeedCacheIntegrationTests: XCTestCase {
   func test_load_deliversNoItemsOnEmptyCache() {
     let sut = makeSUT()
     
-    let exp = expectation(description: "Wait for load completion")
-    sut.load { result in
-      switch result {
-      case let .success(imageFeed):
-        XCTAssertEqual(imageFeed, [], "Expect empty feed")
-        
-      case let .failure(error):
-        XCTFail("Expected successful feed result, got \(error) instead")
-      }
-      
-      exp.fulfill()
-    }
-    wait(for: [exp], timeout: 1.0)
+    expect(sut, toLoad: [])
   }
   
   func test_load_deliversItemsSavedOnASeparateInstance() {
     let sutToPerformSave = makeSUT()
     let sutToPerformLoad = makeSUT()
     let feed = uniqueImageFeed().models
-    
+
     let saveExp = expectation(description: "Wait for save completion")
     sutToPerformSave.save(feed) { saveError in
       XCTAssertNil(saveError, "Expected to save feed successfully")
       saveExp.fulfill()
     }
     wait(for: [saveExp], timeout: 1.0)
-    
-    let loadExp = expectation(description: "Wait for load completion")
-    sutToPerformLoad.load { loadResult in
-      switch loadResult {
-      case let .success(imageFeed):
-        XCTAssertEqual(imageFeed, feed)
-        
-      case let .failure(error):
-        XCTFail("Expected successful feed result, got \(error) instead")
-      }
 
-      loadExp.fulfill()
-    }
-    wait(for: [loadExp], timeout: 1.0)
+    expect(sutToPerformLoad, toLoad: feed)
   }
 
+  
   // MARK: - Helpers
   
   private func makeSUT(file: StaticString = #file, line: UInt = #line) -> LocalFeedLoader {
@@ -77,6 +54,22 @@ class EssentialFeedCacheIntegrationTests: XCTestCase {
     trackForMemoryLeaks(store, file: file, line: line)
     trackForMemoryLeaks(sut, file: file, line: line)
     return sut
+  }
+  
+  private func expect(_ sut: LocalFeedLoader, toLoad expectedFeed: [FeedImage], file: StaticString = #file, line: UInt = #line) {
+    let exp = expectation(description: "Wait for load completion")
+    sut.load { result in
+      switch result {
+      case let .success(loadedFeed):
+        XCTAssertEqual(loadedFeed, expectedFeed, file: file, line: line)
+        
+      case let .failure(error):
+        XCTFail("Expected successful feed result, got \(error) instead", file: file, line: line)
+      }
+      
+      exp.fulfill()
+    }
+    wait(for: [exp], timeout: 1.0)
   }
   
   private func setupEmptyStoreState() {
@@ -99,13 +92,13 @@ class EssentialFeedCacheIntegrationTests: XCTestCase {
     return FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first!
   }
   
-  func uniqueImageFeed() -> (models: [FeedImage], local: [LocalFeedImage]) {
+  private func uniqueImageFeed() -> (models: [FeedImage], local: [LocalFeedImage]) {
     let models = [uniqueImage(), uniqueImage()]
     let local = models.map { LocalFeedImage(id: $0.id, description: $0.description, location: $0.location, url: $0.url) }
     return (models, local)
   }
   
-  func uniqueImage() -> FeedImage {
+  private func uniqueImage() -> FeedImage {
     return FeedImage(id: UUID(), description: "any", location: "any", url: anyURL())
   }
 }
