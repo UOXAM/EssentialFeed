@@ -34,7 +34,7 @@ class EssentialFeedAPIEndToEndTests: XCTestCase {
   
   // MARK: - Helpers
   
-  private func getFeedResult(file: StaticString = #file, line: UInt = #line) -> LoadFeedResult? {
+  private func getFeedResult(file: StaticString = #file, line: UInt = #line) -> FeedLoader.Result? {
     let testServerURL = URL(string: "https://essentialdeveloper.com/feed-case-study/test-api/feed")!
     // ephemeral avoid that a previous session let in disk cache and influence next tests
     let client = URLSessionHTTPClient(session: URLSession(configuration: .ephemeral))
