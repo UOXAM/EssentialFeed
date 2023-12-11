@@ -11,13 +11,13 @@ import EssentialFeed
 class CodableFeedStoreTests: XCTestCase, FailableFeedStoreSpecs {
   override func setUp() {
     super.setUp()
-    
+
     setupEmptyStoreState()
   }
-  
+
   override func tearDown() {
     super.tearDown()
-    
+
     undoStoreSideEffects()
   }
   
