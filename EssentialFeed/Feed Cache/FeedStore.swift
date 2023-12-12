@@ -7,16 +7,18 @@
 
 import Foundation
 
-public enum RetreivecachedFeedResult {
-  case empty
-  case found(feed: [LocalFeedImage], timestamp: Date)
-  case failure(Error)
-}
+public typealias CachedFeed = (feed: [LocalFeedImage], timestamp: Date)
 
 public protocol FeedStore {
-  typealias RetrievalCompletion = (RetreivecachedFeedResult) -> Void
-  typealias InsertionCompletion = (Error?) -> Void
-  typealias DeletionCompletion = (Error?) -> Void
+  typealias DeletionResult = Result<Void, Error>
+  typealias DeletionCompletion = (DeletionResult) -> Void
+
+  typealias InsertionResult = Result<Void, Error>
+  typealias InsertionCompletion = (InsertionResult) -> Void
+  
+  typealias RetrievalResult = Result<CachedFeed?, Error>
+  typealias RetrievalCompletion = (RetrievalResult) -> Void
+
 
   /// The completion handler can be invoked in any thread.
   /// Clients are responsible to dispatch to appropriate threads, if needed.
@@ -28,5 +30,5 @@ public protocol FeedStore {
   
   /// The completion handler can be invoked in any thread.
   /// Clients are responsible to dispatch to appropriate threads, if needed.
-  func deleteCacheFeed(completion: @escaping DeletionCompletion)
+  func deleteCachedFeed(completion: @escaping DeletionCompletion)
 }

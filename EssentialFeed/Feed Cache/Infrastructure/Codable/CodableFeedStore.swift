@@ -47,13 +47,13 @@ public final class CodableFeedStore: FeedStore {
     let storeURL = self.storeURL
     queue.async {
       guard let data = try? Data(contentsOf: storeURL) else {
-        return completion(.empty)
+        return completion(.success(.none))
       }
       
       do {
         let decoder = JSONDecoder()
         let cache = try decoder.decode(Cache.self, from: data)
-        completion(.found(feed: cache.localFeed, timestamp: cache.timestamp))
+        completion(.success(CachedFeed(feed: cache.localFeed, timestamp: cache.timestamp)))
       } catch {
         completion(.failure(error))
       }
@@ -68,27 +68,27 @@ public final class CodableFeedStore: FeedStore {
         let cache = Cache(feed: feed.map(CodableFeedImage.init), timestamp: timestamp)
         let encoded = try encoder.encode(cache)
         try encoded.write(to: storeURL)
-        completion(nil)
+        completion(.success(()))
       } catch {
-        completion(error)
+        completion(.failure(error))
       }
     }
   }
   
-  public func deleteCacheFeed(completion: @escaping FeedStore.DeletionCompletion) {
+  public func deleteCachedFeed(completion: @escaping FeedStore.DeletionCompletion) {
     // we capture value instead a reference
     let storeURL = self.storeURL
     // As we define the queue concurrent, we have to use the flags .barrier to avoid conccurence when a specific command (with side-effects) is launched
     queue.async(flags: .barrier) {
       guard FileManager.default.fileExists(atPath: storeURL.path) else {
-        return completion(nil)
+        return completion(.success(()))
       }
       
       do {
         try FileManager.default.removeItem(at: storeURL)
-        completion(nil)
+        completion(.success(()))
       } catch {
-        completion(error)
+        completion(.failure(error))
       }
     }
   }
